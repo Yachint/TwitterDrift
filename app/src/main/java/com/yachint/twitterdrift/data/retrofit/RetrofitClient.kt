@@ -19,8 +19,8 @@ object RetrofitClient {
         }
         client = httpClient.build()
         retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(client)
+            .baseUrl(baseUrl!!)
+            .client(client!!)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit
@@ -44,8 +44,8 @@ object RetrofitClient {
         })
         client = httpClient.build()
         retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(client)
+            .baseUrl(baseUrl!!)
+            .client(client!!)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit

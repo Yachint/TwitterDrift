@@ -1,21 +1,23 @@
 package com.yachint.twitterdrift.data.retrofit.repository
 
-import android.os.Handler
-import android.os.Looper
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
+import com.yachint.twitterdrift.BuildConfig
+import com.yachint.twitterdrift.data.common.DatabaseListener
 import com.yachint.twitterdrift.data.common.RepositoryListener
 import com.yachint.twitterdrift.data.dao.TrendsDao
+import com.yachint.twitterdrift.data.model.response.trends.TrendsObject
 import com.yachint.twitterdrift.data.model.trends.Trend
 import com.yachint.twitterdrift.data.repository.TrendsRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import com.yachint.twitterdrift.data.retrofit.TwitterApi
+import kotlinx.coroutines.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class RetroTrendsRepository private constructor(
     private val trendsDao: TrendsDao
 ): TrendsRepository{
+    lateinit var trendsList: LiveData<List<Trend>>
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
 
     companion object {
@@ -29,13 +31,14 @@ class RetroTrendsRepository private constructor(
             }
     }
 
-    override fun roomInsertTrends(trends: List<Trend>) {
+    override fun roomInsertTrends(trends: List<Trend>, databaseListener: DatabaseListener) {
         repositoryScope.launch {
             val operation = async {
                 trendsDao.insertTrends(trends)
             }
 
             operation.await()
+            databaseListener.onQueryComplete("INSERT")
         }
     }
 
@@ -49,14 +52,39 @@ class RetroTrendsRepository private constructor(
         }
     }
 
-    override fun roomGetTrends(): LiveData<List<Trend>> =
-        liveData {
-            trendsDao.getTrends()
+    override fun roomGetTrends(): LiveData<List<Trend>> {
+        runBlocking {
+            val job = repositoryScope.launch {
+                trendsList = trendsDao.getTrends()
+            }
+
+            job.join()
         }
 
-    override fun fetchTrends(repositoryListener: RepositoryListener) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            //API Call
-        }, 1000)
+        return trendsList
+    }
+
+    override fun fetchTrends(woeid: Int, repositoryListener: RepositoryListener) {
+        val twitterApiService = TwitterApi.getHeaderAPIService(BuildConfig.TWITTER_API_KEY)
+
+        twitterApiService?.getTrends(woeid)?.enqueue(object : Callback<List<TrendsObject>>{
+            override fun onResponse(
+                call: Call<List<TrendsObject>>,
+                response: Response<List<TrendsObject>>
+            ) {
+                if(response.isSuccessful){
+                    response.body()?.let {
+                        repositoryListener.onSuccess(it[0])
+                    }
+                } else {
+                    repositoryListener.onFailure(Exception(response.message()))
+                }
+            }
+
+            override fun onFailure(call: Call<List<TrendsObject>>, t: Throwable) {
+                repositoryListener.onFailure(t)
+            }
+
+        })
     }
 }
