@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/primaryBackground"
+        tools:context=".ui.activity.SelectThemeActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/header"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginVertical="24dp"
+            android:layout_marginHorizontal="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:contentDescription="@string/back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_previous"
+                android:layout_marginEnd="12dp"
+                android:id="@+id/back"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/select_theme"
+                android:textSize="20sp"
+                android:textColor="?attr/primaryText"
+                android:fontFamily="@font/sf_bold"/>
+
+        </LinearLayout>
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/content"
+            app:layout_constraintTop_toBottomOf="@id/header"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="32dp"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_marginStart="10dp"
+                android:buttonTint="?attr/primaryText"
+                android:fontFamily="@font/sf_bold"
+                android:minHeight="48dp"
+                android:text="@string/light"
+                android:textColor="?attr/primaryText"
+                android:textSize="20sp" />
+            <androidx.cardview.widget.CardView
+                android:layout_marginBottom="20dp"
+                android:foreground="@drawable/theme_card_border"
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                app:cardCornerRadius="15dp"
+                app:cardBackgroundColor="@color/white"
+                android:layout_width="match_parent"
+                android:layout_height="100dp">
+                <TextView
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/sf_bold"
+                    android:text="@string/twitterdrift"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </androidx.cardview.widget.CardView>
+
+            <RadioButton
+                android:id="@+id/dark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_marginStart="10dp"
+                android:buttonTint="?attr/primaryText"
+                android:fontFamily="@font/sf_bold"
+                android:minHeight="48dp"
+                android:text="@string/dark"
+                android:textColor="?attr/primaryText"
+                android:textSize="20sp" />
+            <androidx.cardview.widget.CardView
+                android:layout_marginBottom="20dp"
+                android:foreground="@drawable/theme_card_border"
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                app:cardBackgroundColor="@color/black"
+                android:layout_marginEnd="10dp"
+                app:cardCornerRadius="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="100dp">
+
+                <TextView
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/sf_bold"
+                    android:text="@string/twitterdrift"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+            </androidx.cardview.widget.CardView>
+        </RadioGroup>
+
+        <com.andexert.library.RippleView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/content">
+
+            <Button
+                android:id="@+id/save"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorBlue"
+                android:layout_margin="16dp"
+                android:text="@string/apply"
+                android:fontFamily="@font/sf_bold"
+                android:textColor="@color/colorWhite" />
+
+        </com.andexert.library.RippleView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -25,6 +25,8 @@
         <item name="secondaryText">#6c7a86</item>
         <item name="secondaryBackground">#f5f5f5</item>
         <item name="tertiaryBackground">#D3D3D3</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:actionMenuTextColor">@color/lightPrimaryText</item>
         <item name="colorPrimaryDark">@android:color/white</item>
     </style>

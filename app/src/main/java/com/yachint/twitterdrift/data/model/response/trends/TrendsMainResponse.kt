@@ -4,8 +4,5 @@ import com.yachint.twitterdrift.data.model.BaseModel
 import java.io.Serializable
 
 data class TrendsMainResponse(
-    var status: Long = 200,
-    var message: String = "",
-    val data : ArrayList<TrendsObject>,
-    val errors : Boolean
+    val root: ArrayList<TrendsObject>
 ): BaseModel, Serializable

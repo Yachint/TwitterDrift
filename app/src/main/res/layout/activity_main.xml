@@ -10,6 +10,28 @@
         android:background="?attr/primaryBackground"
         >
 
+        <ImageView
+            android:layout_margin="10dp"
+            android:id="@+id/btnRefresh"
+            android:padding="10dp"
+            app:layout_constraintEnd_toStartOf="@id/btnSettings"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/ic_refresh"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:tint="?attr/primaryText" />
+
+        <ImageView
+            android:layout_margin="10dp"
+            android:id="@+id/btnSettings"
+            android:padding="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/ic_settings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            app:tint="?attr/primaryText" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
