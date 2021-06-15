@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
-<!--        <item name="android:windowBackground">@drawable/splash_screen</item>-->
+        <item name="android:windowBackground">@drawable/splash_screen_dark</item>
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
         <item name="primaryText">@color/darkPrimaryText</item>
         <item name="primaryBackground">@color/darkPrimaryBg</item>
@@ -16,7 +16,7 @@
     </style>
 
     <style name="LightTheme" parent="AppTheme">
-        <!--        <item name="android:windowBackground">@drawable/splash_screen</item>-->
+<!--        <item name="android:windowBackground">@drawable/splash_screen_light</item>-->
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
         <item name="primaryText">@color/lightPrimaryText</item>
         <item name="primaryBackground">@color/lightPrimaryBg</item>
@@ -32,7 +32,7 @@
     </style>
 
     <style name="DarkTheme" parent="AppTheme">
-        <!--        <item name="android:windowBackground">@drawable/splash_screen</item>-->
+<!--        <item name="android:windowBackground">@drawable/splash_screen_dark</item>-->
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
         <item name="primaryText">@color/darkPrimaryText</item>
         <item name="primaryBackground">@color/darkPrimaryBg</item>
