@@ -1,36 +1,68 @@
 package com.yachint.twitterdrift.ui.activity
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.yachint.twitterdrift.R
+import com.yachint.twitterdrift.data.common.LocationListener
 import com.yachint.twitterdrift.databinding.ActivityMainBinding
 import com.yachint.twitterdrift.ui.activity.common.BaseActivity
+import com.yachint.twitterdrift.ui.dialog.CustomDialog
+import com.yachint.twitterdrift.ui.injector.DaggerLocationHelperComponent
 import com.yachint.twitterdrift.ui.injector.DaggerVFMTrendsComponent
+import com.yachint.twitterdrift.ui.modules.LocationHelperModule
 import com.yachint.twitterdrift.ui.modules.VMFTrendsModule
 import com.yachint.twitterdrift.ui.viewmodel.TrendsViewModel
+import com.yachint.twitterdrift.utils.LocationHelper
 import de.mateware.snacky.Snacky
 import hari.bounceview.BounceView
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), LocationListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: TrendsViewModel
-    var isRefreshedClicked = false
+    private lateinit var locationHelper: LocationHelper
+    private lateinit var customDialog: CustomDialog
+    private val LOCATION = 45
+    private var isRefreshedClicked = false
+    private var isNavigatedToSettings = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         initMMKV()
         initTheme()
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-//        supportActionBar?.hide()
 
+        //Initialize class components
+        customDialog = CustomDialog(this)
+
+//        supportActionBar?.hide()
         initializeViewModel()
         setUpObservers()
+
+        //Check if first time app has been opened
+        if(!kv.decodeBool("app", false)){
+            customDialog.showDialogSingle(
+                title = getString(R.string.explain_gps),
+                body = getString(R.string.explain_gps_body),
+                successText = getString(R.string.understand),
+                handleSuccess = ::initializeLocationHelper,
+                isNullable = false,
+                type = "info"
+            )
+
+            kv.encode("app", true)
+        }
+
 
         // Bind buttons to functionalities
         BounceView.addAnimTo(binding.btnRefresh)
@@ -51,6 +83,29 @@ class MainActivity : BaseActivity() {
 //        viewModel.fetchTrendsList(23424848)
     }
 
+    override fun onResume() {
+        super.onResume()
+        if(isNavigatedToSettings){
+            isNavigatedToSettings = false
+            Log.d("Location", "onResume: came back from settings, pinging...")
+            Handler(Looper.getMainLooper()).postDelayed({
+                locationHelper.getLastLocation()
+            }, 1000)
+        }
+    }
+
+    private fun initializeLocationHelper(){
+        val locationComponent = DaggerLocationHelperComponent.builder().locationHelperModule(
+            LocationHelperModule(
+                this,
+                this
+            )
+        ).build()
+
+        locationHelper = locationComponent.getLocationHelper()
+        locationHelper.getLastLocation()
+    }
+
     private fun initializeViewModel(){
         val component = DaggerVFMTrendsComponent.builder().vMFTrendsModule(VMFTrendsModule(this)).build()
         val factory = component.getViewModelFactory()
@@ -60,13 +115,13 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setUpObservers(){
-        viewModel.getErrorIdentifier().observe(this, Observer { error ->
+        viewModel.getErrorIdentifier().observe(this, { error ->
             if(error){
                 notifyError()
             }
         })
 
-        viewModel.trendsList().observe(this, Observer {
+        viewModel.trendsList().observe(this, {
             if(it.isEmpty()){
                 Log.d("OBSERVER", "MainActivity: EMPTY ")
                 viewModel.fetchTrendsList(23424848)
@@ -98,5 +153,76 @@ class MainActivity : BaseActivity() {
             .setDuration(Snacky.LENGTH_LONG)
             .setIcon(R.drawable.ic_error)
             .build().show()
+    }
+
+    private fun requestPermissions(){
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            LOCATION
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if(requestCode == LOCATION){
+            if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                locationHelper.getLastLocation()
+            } else {
+                customDialog.showDialogDouble(
+                    title = getString(R.string.explain_perm),
+                    body = getString(R.string.explain_perm_body),
+                    successText = getString(R.string.grant),
+                    rejectText = getString(R.string.exit),
+                    handleSuccess = ::takeUserToAppSettings,
+                    handleReject = ::onBackPressed,
+                    type = "info",
+                    isNullable = false
+                )
+            }
+        }
+    }
+
+    fun takeUserToAppSettings(){
+        val intent = Intent()
+        intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        val uri = Uri.fromParts("package", packageName, null)
+        intent.data = uri
+        isNavigatedToSettings = true
+        startActivity(intent)
+    }
+
+    fun takeUserToLocationSettings(){
+        isNavigatedToSettings = true
+        startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+    }
+
+    override fun askPermission() {
+        requestPermissions()
+    }
+
+    override fun askLocation() {
+        customDialog.showDialogDouble(
+            title = getString(R.string.explain_toggle),
+            body = getString(R.string.explain_toggle_body),
+            successText = getString(R.string.enable),
+            rejectText = getString(R.string.cancel),
+            handleSuccess = ::takeUserToLocationSettings,
+            handleReject = ::onBackPressed,
+            type = "info",
+            isNullable = false
+        )
+    }
+
+    override fun onLocationRetrieval(longitude: Double, latitude: Double) {
+        Log.d("Location", "Main Longitude: $longitude")
+        Log.d("Location", "Main Latitude: $latitude")
     }
 }

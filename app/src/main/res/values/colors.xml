@@ -26,6 +26,7 @@
     <color name="colorBlue">#3897F0</color>
     <color name="colorGold">#FFD700</color>
     <color name="colorRed">#D9555A</color>
+    <color name="colorBlueSoft">#5C5CFF</color>
     <color name="blue_color_picker">#0000FF</color>
     <color name="brown_color_picker">#A52A2A</color>
     <color name="green_color_picker">#32CD32</color>

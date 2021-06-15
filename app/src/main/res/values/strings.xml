@@ -6,4 +6,18 @@
     <string name="twitterdrift">TwitterDrift</string>
     <string name="dark">Dark</string>
     <string name="apply">Apply</string>
+    <string name="grant">Grant</string>
+    <string name="exit">Exit</string>
+    <string name="enable">Enable</string>
+    <string name="cancel">Cancel</string>
+    <string name="location">Please give us permission to access your location</string>
+    <string name="location_enable">Please enable your location/GPS on your phone</string>
+    <string name="understand">I Understand</string>
+    <string name="settings">Settings</string>
+    <string name="explain_perm">Permission Required</string>
+    <string name="explain_perm_body">Please give us permission to use your GPS sensor, this is required for the app to function properly.</string>
+    <string name="explain_toggle">GPS not enabled</string>
+    <string name="explain_toggle_body">Please enable your GPS/Location to help us determine your location, You can turn it off once we are done.</string>
+    <string name="explain_gps">App requires GPS data</string>
+    <string name="explain_gps_body">We require your one time GPS location to better serve you trends based on your area, You can disable it once we are done.</string>
 </resources>
