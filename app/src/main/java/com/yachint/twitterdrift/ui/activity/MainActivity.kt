@@ -50,7 +50,7 @@ class MainActivity : BaseActivity(), LocationListener {
         setUpObservers()
 
         //Check if first time app has been opened
-        if(!kv.decodeBool("app", false)){
+        if(!kv.decodeBool("location", false)){
             customDialog.showDialogSingle(
                 title = getString(R.string.explain_gps),
                 body = getString(R.string.explain_gps_body),
@@ -59,8 +59,6 @@ class MainActivity : BaseActivity(), LocationListener {
                 isNullable = false,
                 type = "info"
             )
-
-            kv.encode("app", true)
         }
 
 
@@ -87,6 +85,7 @@ class MainActivity : BaseActivity(), LocationListener {
         super.onResume()
         if(isNavigatedToSettings){
             isNavigatedToSettings = false
+            customDialog.showLoadingDialog()
             Log.d("Location", "onResume: came back from settings, pinging...")
             Handler(Looper.getMainLooper()).postDelayed({
                 locationHelper.getLastLocation()
@@ -190,7 +189,7 @@ class MainActivity : BaseActivity(), LocationListener {
         }
     }
 
-    fun takeUserToAppSettings(){
+    private fun takeUserToAppSettings(){
         val intent = Intent()
         intent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
         val uri = Uri.fromParts("package", packageName, null)
@@ -199,16 +198,18 @@ class MainActivity : BaseActivity(), LocationListener {
         startActivity(intent)
     }
 
-    fun takeUserToLocationSettings(){
+    private fun takeUserToLocationSettings(){
         isNavigatedToSettings = true
         startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
     }
 
     override fun askPermission() {
+        customDialog.dismiss()
         requestPermissions()
     }
 
     override fun askLocation() {
+        customDialog.dismiss()
         customDialog.showDialogDouble(
             title = getString(R.string.explain_toggle),
             body = getString(R.string.explain_toggle_body),
@@ -224,5 +225,15 @@ class MainActivity : BaseActivity(), LocationListener {
     override fun onLocationRetrieval(longitude: Double, latitude: Double) {
         Log.d("Location", "Main Longitude: $longitude")
         Log.d("Location", "Main Latitude: $latitude")
+        kv.encode("location", true)
+        customDialog.dismiss()
+        customDialog.showDialogSingle(
+            title = getString(R.string.explain_ping),
+            body = getString(R.string.explain_ping_body),
+            successText = getString(R.string.gotIt),
+            handleSuccess = null,
+            isNullable = true,
+            type = "success"
+        )
     }
 }

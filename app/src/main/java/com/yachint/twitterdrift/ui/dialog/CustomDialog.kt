@@ -1,6 +1,7 @@
 package com.yachint.twitterdrift.ui.dialog
 
 import android.app.Activity
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.util.Log
@@ -11,13 +12,30 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.cardview.widget.CardView
 import com.yachint.twitterdrift.R
-import com.yachint.twitterdrift.ui.activity.MainActivity
-import java.lang.Exception
 
 class CustomDialog(
     private val activity: Activity
 ) {
     private lateinit var dialog: AlertDialog
+
+    companion object {
+        var isShowing = false
+    }
+
+    fun showLoadingDialog(){
+        if(!isShowing){
+            val builder = AlertDialog.Builder(activity)
+            val view: View = LayoutInflater.from(activity).inflate(R.layout.custom_dialog_loading, null)
+            builder.setView(view)
+
+            builder.setCancelable(false)
+            dialog = builder.create()
+            dialog.show()
+
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            isShowing = true
+        }
+    }
 
     fun showDialogDouble(
         title: String,
@@ -29,16 +47,19 @@ class CustomDialog(
         isNullable: Boolean,
         type: String
     ){
-        val builder = AlertDialog.Builder(activity)
-        val view: View = LayoutInflater.from(activity).inflate(R.layout.material_you_dialog_double, null)
-        builder.setView(view)
+        if(!isShowing){
+            val builder = AlertDialog.Builder(activity)
+            val view: View = LayoutInflater.from(activity).inflate(R.layout.material_you_dialog_double, null)
+            builder.setView(view)
 
-        init(view, title, body, successText, rejectText, handleSuccess, handleReject, type, 2)
-        builder.setCancelable(isNullable)
-        dialog = builder.create()
-        dialog.show()
+            init(view, title, body, successText, rejectText, handleSuccess, handleReject, type, 2)
+            builder.setCancelable(isNullable)
+            dialog = builder.create()
+            dialog.show()
 
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            isShowing = true
+        }
     }
 
     fun showDialogSingle(
@@ -49,16 +70,19 @@ class CustomDialog(
         isNullable: Boolean,
         type: String
     ){
-        val builder = AlertDialog.Builder(activity)
-        val view: View = LayoutInflater.from(activity).inflate(R.layout.material_you_dialog_single, null)
-        builder.setView(view)
+        if(!isShowing){
+            val builder = AlertDialog.Builder(activity)
+            val view: View = LayoutInflater.from(activity).inflate(R.layout.material_you_dialog_single, null)
+            builder.setView(view)
 
-        init(view, title, body, successText, "", handleSuccess, null, type, 1)
-        builder.setCancelable(isNullable)
-        dialog = builder.create()
-        dialog.show()
+            init(view, title, body, successText, "", handleSuccess, null, type, 1)
+            builder.setCancelable(isNullable)
+            dialog = builder.create()
+            dialog.show()
 
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            isShowing = true
+        }
     }
 
     private fun init(
@@ -119,81 +143,22 @@ class CustomDialog(
 
             "error" -> {
                 helperImage.setImageResource(R.drawable.ic_error)
-                helperImage.setBackgroundColor(activity.getColor(R.color.red_color_picker))
+                helperImage.imageTintList = ColorStateList.valueOf(activity.getColor(R.color.colorRed))
             }
 
             "success" -> {
                 helperImage.setImageResource(R.drawable.ic_outline_check)
-                helperImage.setBackgroundColor(activity.getColor(R.color.green_color_picker))
+                helperImage.imageTintList = ColorStateList.valueOf(activity.getColor(R.color.green_color_picker))
             }
         }
     }
 
-    fun showPermissionDialog(){
-        val builder = AlertDialog.Builder(activity)
-        val view: View = LayoutInflater.from(activity).inflate(R.layout.material_you_dialog_double, null)
-        builder.setView(view)
-
-        //Bind view buttons with function
-        val successText = view.findViewById<TextView>(R.id.acceptText)
-        val rejectText = view.findViewById<TextView>(R.id.rejectText)
-        val successBtn = view.findViewById<TextView>(R.id.successBtn)
-        val rejectBtn = view.findViewById<TextView>(R.id.rejectBtn)
-        successText.text = activity.getString(R.string.grant)
-        rejectText.text = activity.getString(R.string.exit)
-        val message = view.findViewById<TextView>(R.id.textSingle)
-        message.text = activity.getString(R.string.location)
-
-        successBtn.setOnClickListener {
-            dismiss()
-            (activity as MainActivity).takeUserToAppSettings()
-        }
-
-        rejectBtn.setOnClickListener {
-            dismiss()
-            (activity as MainActivity).onBackPressed()
-        }
-
-        builder.setCancelable(false)
-        dialog = builder.create()
-        dialog.show()
-
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    }
-
-    fun showLocationDialog(){
-        val builder = AlertDialog.Builder(activity)
-        val view: View = LayoutInflater.from(activity).inflate(R.layout.single_option_dialog, null)
-        builder.setView(view)
-
-        //Bind view buttons with function
-        val successBtn = view.findViewById<TextView>(R.id.successBtn)
-        val rejectBtn = view.findViewById<TextView>(R.id.rejectBtn)
-        val message = view.findViewById<TextView>(R.id.textSingle)
-        successBtn.text = activity.getString(R.string.enable)
-        rejectBtn.text = activity.getString(R.string.cancel)
-        message.text = activity.getString(R.string.location_enable)
-
-        successBtn.setOnClickListener {
-            dismiss()
-            (activity as MainActivity).takeUserToLocationSettings()
-        }
-
-        rejectBtn.setOnClickListener {
-            dismiss()
-            (activity as MainActivity).onBackPressed()
-        }
-
-        builder.setCancelable(false)
-        dialog = builder.create()
-        dialog.show()
-
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-    }
-
     fun dismiss(){
         try {
-            dialog.dismiss()
+            if(isShowing){
+                dialog.dismiss()
+                isShowing = false
+            }
         } catch (e: Exception){
             Log.i("DIALOG ERROR", "Progress Dialog: ${e.localizedMessage}")
         }
