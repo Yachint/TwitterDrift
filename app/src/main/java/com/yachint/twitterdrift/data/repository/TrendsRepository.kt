@@ -10,4 +10,5 @@ interface TrendsRepository {
     fun roomDeleteTrends()
     fun roomGetTrends(): LiveData<List<Trend>>
     fun fetchTrends(woeid: Int, repositoryListener: RepositoryListener)
+    fun fetchPlaceId(lat: Double, long: Double, repositoryListener: RepositoryListener)
 }
