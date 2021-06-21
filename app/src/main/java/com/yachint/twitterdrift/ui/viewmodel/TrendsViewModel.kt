@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.yachint.twitterdrift.data.common.DatabaseListener
 import com.yachint.twitterdrift.data.common.RepositoryListener
 import com.yachint.twitterdrift.data.model.BaseModel
-import com.yachint.twitterdrift.data.model.response.trends.TrendsMainResponse
 import com.yachint.twitterdrift.data.model.response.trends.TrendsObject
+import com.yachint.twitterdrift.data.model.response.woeid.PlaceModel
 import com.yachint.twitterdrift.data.model.trends.Trend
 import com.yachint.twitterdrift.data.retrofit.repository.RetroTrendsRepository
 
@@ -16,9 +16,11 @@ class TrendsViewModel(
     private val retroTrendsRepository: RetroTrendsRepository
 ): ViewModel(), RepositoryListener, DatabaseListener {
     private lateinit var listOfTrends: LiveData<List<Trend>>
+    private var place: MutableLiveData<PlaceModel> = MutableLiveData()
     private var error: MutableLiveData<Boolean> = MutableLiveData(false)
 
     fun trendsList(): LiveData<List<Trend>> = listOfTrends
+    fun getPlace(): LiveData<PlaceModel> = place
 
     fun getTrendsList(){
         listOfTrends = retroTrendsRepository.roomGetTrends()
@@ -36,11 +38,19 @@ class TrendsViewModel(
         retroTrendsRepository.fetchTrends(woeid, this)
     }
 
+    fun fetchPlaceId(lat: Double, long: Double){
+        retroTrendsRepository.fetchPlaceId(lat, long, this)
+    }
+
     override fun onSuccess(dataModel: BaseModel) {
         when(dataModel){
             is TrendsObject -> {
                 Log.d("OBSERVER", "API Fetch Complete, Putting in DB...")
                 insertTrends(dataModel.trends)
+            }
+
+            is PlaceModel -> {
+                place.value = dataModel
             }
         }
         error.value = false

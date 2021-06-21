@@ -6,6 +6,7 @@ import com.yachint.twitterdrift.data.common.DatabaseListener
 import com.yachint.twitterdrift.data.common.RepositoryListener
 import com.yachint.twitterdrift.data.dao.TrendsDao
 import com.yachint.twitterdrift.data.model.response.trends.TrendsObject
+import com.yachint.twitterdrift.data.model.response.woeid.PlaceModel
 import com.yachint.twitterdrift.data.model.trends.Trend
 import com.yachint.twitterdrift.data.repository.TrendsRepository
 import com.yachint.twitterdrift.data.retrofit.TwitterApi
@@ -82,6 +83,30 @@ class RetroTrendsRepository private constructor(
             }
 
             override fun onFailure(call: Call<List<TrendsObject>>, t: Throwable) {
+                repositoryListener.onFailure(t)
+            }
+
+        })
+    }
+
+    override fun fetchPlaceId(lat: Double, long: Double, repositoryListener: RepositoryListener) {
+        val twitterApiService = TwitterApi.getHeaderAPIService(BuildConfig.TWITTER_API_KEY)
+
+        twitterApiService?.getPlaceId(lat, long)?.enqueue(object : Callback<List<PlaceModel>>{
+            override fun onResponse(
+                call: Call<List<PlaceModel>>,
+                response: Response<List<PlaceModel>>
+            ) {
+                if(response.isSuccessful){
+                    response.body()?.let {
+                        repositoryListener.onSuccess(it[0])
+                    }
+                } else {
+                    repositoryListener.onFailure(Exception(response.message()))
+                }
+            }
+
+            override fun onFailure(call: Call<List<PlaceModel>>, t: Throwable) {
                 repositoryListener.onFailure(t)
             }
 

@@ -35,6 +35,8 @@ class MainActivity : BaseActivity(), LocationListener {
     private val LOCATION = 45
     private var isRefreshedClicked = false
     private var isNavigatedToSettings = false
+    private var woeid: Int = 0
+    private var isUpdateReceived = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         initMMKV()
@@ -44,10 +46,6 @@ class MainActivity : BaseActivity(), LocationListener {
 
         //Initialize class components
         customDialog = CustomDialog(this)
-
-//        supportActionBar?.hide()
-        initializeViewModel()
-        setUpObservers()
 
         //Check if first time app has been opened
         if(!kv.decodeBool("location", false)){
@@ -59,13 +57,19 @@ class MainActivity : BaseActivity(), LocationListener {
                 isNullable = false,
                 type = "info"
             )
+        } else {
+            woeid = kv.decodeInt("woeid")
+            Log.i("Place", "$woeid")
         }
 
+        // supportActionBar?.hide()
+        initializeViewModel()
+        setUpObservers()
 
         // Bind buttons to functionalities
         BounceView.addAnimTo(binding.btnRefresh)
         binding.btnRefresh.setOnClickListener {
-            refreshData()
+            refreshData(1)
             isRefreshedClicked = true
         }
 
@@ -76,9 +80,18 @@ class MainActivity : BaseActivity(), LocationListener {
         }
     }
 
-    private fun refreshData(){
-        viewModel.deleteTrendsList()
-//        viewModel.fetchTrendsList(23424848)
+    private fun refreshData(type: Int){
+        //0 -> Initial fetch after woeid has been received
+        //1 -> Delete existing data and refresh
+        when(type){
+            0 -> {
+                viewModel.fetchTrendsList(woeid)
+            }
+
+            1 -> {
+                viewModel.deleteTrendsList()
+            }
+        }
     }
 
     override fun onResume() {
@@ -123,7 +136,9 @@ class MainActivity : BaseActivity(), LocationListener {
         viewModel.trendsList().observe(this, {
             if(it.isEmpty()){
                 Log.d("OBSERVER", "MainActivity: EMPTY ")
-                viewModel.fetchTrendsList(23424848)
+                if(woeid != 0){
+                    viewModel.fetchTrendsList(woeid)
+                }
             } else {
                 Log.d("OBSERVER", "MainActivity: $it ")
                 if(isRefreshedClicked){
@@ -132,6 +147,19 @@ class MainActivity : BaseActivity(), LocationListener {
                 }
             }
         })
+
+        if(!kv.decodeBool("location", false)){
+            viewModel.getPlace().observe(this, {
+                if(it != null){
+                    woeid = it.woeid
+                    Log.i("Place", "$woeid")
+                    kv.encode("woeid", it.woeid)
+                    kv.encode("country", it.country)
+                    kv.encode("place", it.name)
+                    showProcessCompletionDialog()
+                }
+            })
+        }
     }
 
     private fun notifySuccess(){
@@ -223,17 +251,47 @@ class MainActivity : BaseActivity(), LocationListener {
     }
 
     override fun onLocationRetrieval(longitude: Double, latitude: Double) {
+        isUpdateReceived = true
         Log.d("Location", "Main Longitude: $longitude")
         Log.d("Location", "Main Latitude: $latitude")
+        viewModel.fetchPlaceId(latitude, longitude)
         kv.encode("location", true)
+    }
+
+    private fun initialFetch(){
+        refreshData(0)
+    }
+
+    fun startLocationTimer(){
+        Handler(Looper.getMainLooper()).postDelayed({
+            if(!isUpdateReceived){
+             showProcessErrorDialog()
+            }
+        }, 8000)
+    }
+
+    private fun showProcessErrorDialog(){
+        customDialog.dismiss()
+        customDialog.showDialogSingle(
+            title = getString(R.string.explain_gps_fail),
+            body = getString(R.string.explain_gps_fail_body),
+            successText = getString(R.string.restart),
+            handleSuccess = ::onBackPressed,
+            isNullable = false,
+            type = "error"
+        )
+    }
+
+    private fun showProcessCompletionDialog(){
         customDialog.dismiss()
         customDialog.showDialogSingle(
             title = getString(R.string.explain_ping),
             body = getString(R.string.explain_ping_body),
             successText = getString(R.string.gotIt),
-            handleSuccess = null,
+            handleSuccess = ::initialFetch,
             isNullable = true,
             type = "success"
         )
     }
+
 }

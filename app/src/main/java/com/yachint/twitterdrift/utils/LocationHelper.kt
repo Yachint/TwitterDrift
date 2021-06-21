@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import com.yachint.twitterdrift.data.common.LocationListener
+import com.yachint.twitterdrift.ui.activity.MainActivity
 
 class LocationHelper(
     private val context: Context,
@@ -25,6 +26,7 @@ class LocationHelper(
                 fusedLocationProviderClient.lastLocation.addOnCompleteListener {
                     val location = it.result
                     if(location == null){
+                        (context as MainActivity).startLocationTimer()
                         requestNewLocationData()
                     } else {
                         Log.d("Location", "Last Longitude: ${location.longitude}")
