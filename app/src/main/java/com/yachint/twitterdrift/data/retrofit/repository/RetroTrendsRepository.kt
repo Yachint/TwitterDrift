@@ -1,12 +1,11 @@
 package com.yachint.twitterdrift.data.retrofit.repository
 
 import androidx.lifecycle.LiveData
-import com.yachint.twitterdrift.BuildConfig
 import com.yachint.twitterdrift.data.common.DatabaseListener
 import com.yachint.twitterdrift.data.common.RepositoryListener
 import com.yachint.twitterdrift.data.dao.TrendsDao
-import com.yachint.twitterdrift.data.model.response.trends.TrendsObject
-import com.yachint.twitterdrift.data.model.response.woeid.PlaceModel
+import com.yachint.twitterdrift.data.model.response.trends.TrendsMainResponse
+import com.yachint.twitterdrift.data.model.response.woeid.PlaceMainResponse
 import com.yachint.twitterdrift.data.model.trends.Trend
 import com.yachint.twitterdrift.data.repository.TrendsRepository
 import com.yachint.twitterdrift.data.retrofit.TwitterApi
@@ -18,7 +17,9 @@ import retrofit2.Response
 class RetroTrendsRepository private constructor(
     private val trendsDao: TrendsDao
 ): TrendsRepository{
-    lateinit var trendsList: LiveData<List<Trend>>
+    private lateinit var trendsList: LiveData<List<Trend>>
+    private lateinit var globalTrendList: LiveData<List<Trend>>
+    private lateinit var regionalTrendList: LiveData<List<Trend>>
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
 
     companion object {
@@ -65,51 +66,99 @@ class RetroTrendsRepository private constructor(
         return trendsList
     }
 
-    override fun fetchTrends(woeid: Int, repositoryListener: RepositoryListener) {
-        val twitterApiService = TwitterApi.getHeaderAPIService(BuildConfig.TWITTER_API_KEY)
+    override fun fetchPlaceId(lat: Double, long: Double, repositoryListener: RepositoryListener) {
+        val twitterApiService = TwitterApi.APIService
 
-        twitterApiService?.getTrends(woeid)?.enqueue(object : Callback<List<TrendsObject>>{
+        twitterApiService?.getPlaceId(lat, long)?.enqueue(object : Callback<PlaceMainResponse>{
             override fun onResponse(
-                call: Call<List<TrendsObject>>,
-                response: Response<List<TrendsObject>>
+                call: Call<PlaceMainResponse>,
+                response: Response<PlaceMainResponse>
             ) {
                 if(response.isSuccessful){
                     response.body()?.let {
-                        repositoryListener.onSuccess(it[0])
+                        repositoryListener.onSuccess(it.data[0])
                     }
                 } else {
                     repositoryListener.onFailure(Exception(response.message()))
                 }
             }
 
-            override fun onFailure(call: Call<List<TrendsObject>>, t: Throwable) {
+            override fun onFailure(call: Call<PlaceMainResponse>, t: Throwable) {
                 repositoryListener.onFailure(t)
             }
 
         })
     }
 
-    override fun fetchPlaceId(lat: Double, long: Double, repositoryListener: RepositoryListener) {
-        val twitterApiService = TwitterApi.getHeaderAPIService(BuildConfig.TWITTER_API_KEY)
+    override fun fetchRegionalTrends(woeid: Int, limit: Int, repositoryListener: RepositoryListener) {
+        val twitterApiService = TwitterApi.APIService
 
-        twitterApiService?.getPlaceId(lat, long)?.enqueue(object : Callback<List<PlaceModel>>{
+        twitterApiService?.getTrends(woeid, limit)?.enqueue(object : Callback<TrendsMainResponse> {
             override fun onResponse(
-                call: Call<List<PlaceModel>>,
-                response: Response<List<PlaceModel>>
+                call: Call<TrendsMainResponse>,
+                response: Response<TrendsMainResponse>
             ) {
                 if(response.isSuccessful){
                     response.body()?.let {
-                        repositoryListener.onSuccess(it[0])
+                        repositoryListener.onSuccess(it)
                     }
                 } else {
                     repositoryListener.onFailure(Exception(response.message()))
                 }
             }
 
-            override fun onFailure(call: Call<List<PlaceModel>>, t: Throwable) {
+            override fun onFailure(call: Call<TrendsMainResponse>, t: Throwable) {
                 repositoryListener.onFailure(t)
             }
 
         })
+    }
+
+    override fun fetchGlobalTrends(limit: Int, repositoryListener: RepositoryListener) {
+        val twitterApiService = TwitterApi.APIService
+
+        twitterApiService?.getTrends(1, limit)?.enqueue(object : Callback<TrendsMainResponse> {
+            override fun onResponse(
+                call: Call<TrendsMainResponse>,
+                response: Response<TrendsMainResponse>
+            ) {
+                if(response.isSuccessful){
+                    response.body()?.let {
+                        repositoryListener.onSuccess(it)
+                    }
+                } else {
+                    repositoryListener.onFailure(Exception(response.message()))
+                }
+            }
+
+            override fun onFailure(call: Call<TrendsMainResponse>, t: Throwable) {
+                repositoryListener.onFailure(t)
+            }
+
+        })
+    }
+
+    override fun roomGetGlobalTrends(): LiveData<List<Trend>> {
+        runBlocking {
+            val job = repositoryScope.launch {
+                globalTrendList = trendsDao.getGlobalTrends()
+            }
+
+            job.join()
+        }
+
+        return globalTrendList
+    }
+
+    override fun roomGetRegionalTrends(): LiveData<List<Trend>> {
+        runBlocking {
+            val job = repositoryScope.launch {
+                regionalTrendList = trendsDao.getRegionalTrends()
+            }
+
+            job.join()
+        }
+
+        return regionalTrendList
     }
 }

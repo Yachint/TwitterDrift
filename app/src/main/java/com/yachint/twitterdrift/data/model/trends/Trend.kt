@@ -9,5 +9,9 @@ data class Trend(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
     val name: String,
     val url: String,
-    val tweet_volume: Long
+    val ETA: Long,
+    val state: String,
+    val since: String,
+    val tweet_volume: Long? = null,
+    val type: String
 ): BaseModel

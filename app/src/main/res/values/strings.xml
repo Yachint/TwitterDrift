@@ -26,4 +26,6 @@
     <string name="explain_toggle_body">Please enable your GPS/Location to help us determine your location, You can turn it off once we are done.</string>
     <string name="explain_gps">App requires GPS data</string>
     <string name="explain_gps_body">We require your one time GPS location to better serve you trends based on your area, You can disable it once we are done.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

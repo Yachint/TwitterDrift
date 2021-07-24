@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.yachint.twitterdrift.data.common.DatabaseListener
 import com.yachint.twitterdrift.data.common.RepositoryListener
 import com.yachint.twitterdrift.data.model.BaseModel
-import com.yachint.twitterdrift.data.model.response.trends.TrendsObject
+import com.yachint.twitterdrift.data.model.response.trends.TrendsMainResponse
 import com.yachint.twitterdrift.data.model.response.woeid.PlaceModel
 import com.yachint.twitterdrift.data.model.trends.Trend
 import com.yachint.twitterdrift.data.retrofit.repository.RetroTrendsRepository
@@ -15,38 +15,70 @@ import com.yachint.twitterdrift.data.retrofit.repository.RetroTrendsRepository
 class TrendsViewModel(
     private val retroTrendsRepository: RetroTrendsRepository
 ): ViewModel(), RepositoryListener, DatabaseListener {
-    private lateinit var listOfTrends: LiveData<List<Trend>>
+//    private lateinit var listOfTrends: LiveData<List<Trend>>
+    private lateinit var globalTrends: LiveData<List<Trend>>
+    private lateinit var regionalTrends: LiveData<List<Trend>>
     private var place: MutableLiveData<PlaceModel> = MutableLiveData()
+    private var requestsPending = MutableLiveData(0)
     private var error: MutableLiveData<Boolean> = MutableLiveData(false)
 
-    fun trendsList(): LiveData<List<Trend>> = listOfTrends
+//    fun trendsList(): LiveData<List<Trend>> = listOfTrends
+    fun globalTrendsList(): LiveData<List<Trend>> = globalTrends
+    fun regionalTrendsList(): LiveData<List<Trend>> = regionalTrends
     fun getPlace(): LiveData<PlaceModel> = place
+    fun getPendingRequests(): LiveData<Int> = requestsPending
 
-    fun getTrendsList(){
-        listOfTrends = retroTrendsRepository.roomGetTrends()
+    private fun recordRequest(){
+        Log.d("OBSERVER", "recordRequest: +1")
+        requestsPending.value = requestsPending.value?.plus(1)
+    }
+
+    private fun removeRequest(){
+        Log.d("OBSERVER", "recordRequest: -1")
+        requestsPending.value = requestsPending.value?.minus(1)
+    }
+
+//    private fun getTrendsList(){
+//        listOfTrends = retroTrendsRepository.roomGetTrends()
+//    }
+
+    fun getGlobalTrends(){
+        globalTrends = retroTrendsRepository.roomGetGlobalTrends()
+    }
+
+    fun getRegionalTrends(){
+        regionalTrends = retroTrendsRepository.roomGetRegionalTrends()
     }
 
     fun deleteTrendsList(){
         retroTrendsRepository.roomDeleteTrends()
     }
 
-    fun insertTrends(trends: List<Trend>){
+    private fun insertTrends(trends: List<Trend>){
         retroTrendsRepository.roomInsertTrends(trends, this)
     }
 
-    fun fetchTrendsList(woeid: Int){
-        retroTrendsRepository.fetchTrends(woeid, this)
+    fun fetchRegionalTrends(woeid: Int, limit: Int){
+        retroTrendsRepository.fetchRegionalTrends(woeid, limit, this)
+        recordRequest()
+    }
+
+    fun fetchGlobalTrends(limit: Int){
+        retroTrendsRepository.fetchGlobalTrends(limit,this)
+        recordRequest()
     }
 
     fun fetchPlaceId(lat: Double, long: Double){
         retroTrendsRepository.fetchPlaceId(lat, long, this)
+        recordRequest()
     }
 
     override fun onSuccess(dataModel: BaseModel) {
+        removeRequest()
         when(dataModel){
-            is TrendsObject -> {
-                Log.d("OBSERVER", "API Fetch Complete, Putting in DB...")
-                insertTrends(dataModel.trends)
+            is TrendsMainResponse -> {
+                Log.d("OBSERVER", "API Fetch Complete for ${dataModel.data[0].type}, Putting in DB...")
+                insertTrends(dataModel.data)
             }
 
             is PlaceModel -> {
@@ -66,7 +98,8 @@ class TrendsViewModel(
         when(type){
             "INSERT" -> {
                 Log.d("OBSERVER", "onQueryComplete: Insert, refreshing livedata form DB...")
-                getTrendsList()
+                getGlobalTrends()
+                getRegionalTrends()
             }
         }
     }
