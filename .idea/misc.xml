@@ -6,21 +6,41 @@
         <entry key="app/src/main/res/drawable/colored_bg.xml" value="0.18385416666666668" />
         <entry key="app/src/main/res/drawable/dark_bg.xml" value="0.16979166666666667" />
         <entry key="app/src/main/res/drawable/ic_baseline_error.xml" value="0.30462962962962964" />
+        <entry key="app/src/main/res/drawable/ic_baseline_pie_filled.xml" value="0.30666666666666664" />
+        <entry key="app/src/main/res/drawable/ic_chart.xml" value="0.30666666666666664" />
+        <entry key="app/src/main/res/drawable/ic_chart_box_outline.xml" value="0.30666666666666664" />
+        <entry key="app/src/main/res/drawable/ic_chart_filled.xml" value="0.30666666666666664" />
+        <entry key="app/src/main/res/drawable/ic_chart_pie.xml" value="0.30666666666666664" />
         <entry key="app/src/main/res/drawable/ic_check.xml" value="0.17708333333333334" />
+        <entry key="app/src/main/res/drawable/ic_chevron_double_down.xml" value="0.321025641025641" />
+        <entry key="app/src/main/res/drawable/ic_diamond_stone.xml" value="0.321025641025641" />
+        <entry key="app/src/main/res/drawable/ic_dot.xml" value="0.31145833333333334" />
         <entry key="app/src/main/res/drawable/ic_error.xml" value="0.17708333333333334" />
+        <entry key="app/src/main/res/drawable/ic_fire.xml" value="0.321025641025641" />
         <entry key="app/src/main/res/drawable/ic_location.xml" value="0.321025641025641" />
         <entry key="app/src/main/res/drawable/ic_outline_check.xml" value="0.30462962962962964" />
         <entry key="app/src/main/res/drawable/ic_outline_info.xml" value="0.30462962962962964" />
+        <entry key="app/src/main/res/drawable/ic_outline_pie_chart.xml" value="0.30666666666666664" />
         <entry key="app/src/main/res/drawable/ic_previous.xml" value="0.165" />
+        <entry key="app/src/main/res/drawable/ic_trending.xml" value="0.5" />
         <entry key="app/src/main/res/drawable/splash_screen.xml" value="0.18385416666666668" />
         <entry key="app/src/main/res/drawable/splash_screen_dark.xml" value="0.16979166666666667" />
+        <entry key="app/src/main/res/drawable/stats_selector.xml" value="0.30666666666666664" />
         <entry key="app/src/main/res/drawable/theme_card_border.xml" value="0.27037037037037037" />
+        <entry key="app/src/main/res/drawable/trend_selector.xml" value="0.30666666666666664" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_select_theme.xml" value="0.335" />
         <entry key="app/src/main/res/layout/custom_dialog_loading.xml" value="0.16458333333333333" />
+        <entry key="app/src/main/res/layout/fragment_global_trends.xml" value="0.29583333333333334" />
+        <entry key="app/src/main/res/layout/fragment_regional_trends.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/fragment_stats.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/fragment_stats_new.xml" value="0.12395833333333334" />
+        <entry key="app/src/main/res/layout/fragment_trends.xml" value="0.125" />
         <entry key="app/src/main/res/layout/material_you_dialog_double.xml" value="0.335" />
         <entry key="app/src/main/res/layout/material_you_dialog_single.xml" value="0.335" />
         <entry key="app/src/main/res/layout/single_option_dialog.xml" value="0.3098958333333333" />
+        <entry key="app/src/main/res/layout/trends_feed_item_layout.xml" value="0.25" />
+        <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.2953125" />
       </map>
     </option>
   </component>

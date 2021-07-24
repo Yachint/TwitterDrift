@@ -16,4 +16,10 @@ interface TrendsDao {
 
     @Query("SELECT * FROM trends_table")
     fun getTrends(): LiveData<List<Trend>>
+
+    @Query("SELECT * FROM trends_table WHERE type = 'global'")
+    fun getGlobalTrends(): LiveData<List<Trend>>
+
+    @Query("SELECT * FROM trends_table WHERE type = 'regional'")
+    fun getRegionalTrends(): LiveData<List<Trend>>
 }

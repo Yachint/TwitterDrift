@@ -8,15 +8,20 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.MenuItem
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.yachint.twitterdrift.R
 import com.yachint.twitterdrift.data.common.LocationListener
 import com.yachint.twitterdrift.databinding.ActivityMainBinding
 import com.yachint.twitterdrift.ui.activity.common.BaseActivity
 import com.yachint.twitterdrift.ui.dialog.CustomDialog
+import com.yachint.twitterdrift.ui.fragment.StatsFragment
+import com.yachint.twitterdrift.ui.fragment.TrendsFragment
 import com.yachint.twitterdrift.ui.injector.DaggerLocationHelperComponent
 import com.yachint.twitterdrift.ui.injector.DaggerVFMTrendsComponent
 import com.yachint.twitterdrift.ui.modules.LocationHelperModule
@@ -24,31 +29,42 @@ import com.yachint.twitterdrift.ui.modules.VMFTrendsModule
 import com.yachint.twitterdrift.ui.viewmodel.TrendsViewModel
 import com.yachint.twitterdrift.utils.LocationHelper
 import de.mateware.snacky.Snacky
-import hari.bounceview.BounceView
 
-class MainActivity : BaseActivity(), LocationListener {
+class MainActivity : BaseActivity(), LocationListener,
+    BottomNavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: TrendsViewModel
     private lateinit var locationHelper: LocationHelper
     private lateinit var customDialog: CustomDialog
     private val LOCATION = 45
-    private var isRefreshedClicked = false
     private var isNavigatedToSettings = false
     private var woeid: Int = 0
     private var isUpdateReceived = false
+    lateinit var activeFragment: Fragment
+    private var trendsFragment = TrendsFragment()
+    private var statsFragment = StatsFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         initMMKV()
         initTheme()
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        supportActionBar?.hide()
+
+        //Fragment management
+        binding.bottomNav.setOnNavigationItemSelectedListener(this)
+        activeFragment = trendsFragment
+        supportFragmentManager.beginTransaction().add(R.id.fragmentHolder, trendsFragment, "trends").commit()
+        supportFragmentManager.beginTransaction().add(R.id.fragmentHolder, statsFragment, "stats")
+            .hide(statsFragment).commit()
 
         //Initialize class components
         customDialog = CustomDialog(this)
 
         //Check if first time app has been opened
         if(!kv.decodeBool("location", false)){
+            Log.d("MMKV", "location false ")
             customDialog.showDialogSingle(
                 title = getString(R.string.explain_gps),
                 body = getString(R.string.explain_gps_body),
@@ -58,6 +74,7 @@ class MainActivity : BaseActivity(), LocationListener {
                 type = "info"
             )
         } else {
+            Log.d("MMKV", "location true ")
             woeid = kv.decodeInt("woeid")
             Log.i("Place", "$woeid")
         }
@@ -65,27 +82,15 @@ class MainActivity : BaseActivity(), LocationListener {
         // supportActionBar?.hide()
         initializeViewModel()
         setUpObservers()
-
-        // Bind buttons to functionalities
-        BounceView.addAnimTo(binding.btnRefresh)
-        binding.btnRefresh.setOnClickListener {
-            refreshData(1)
-            isRefreshedClicked = true
-        }
-
-        binding.btnSettings.setOnClickListener {
-            startActivity(
-                Intent(this, SelectThemeActivity::class.java)
-            )
-        }
     }
 
-    private fun refreshData(type: Int){
+    fun refreshData(type: Int){
         //0 -> Initial fetch after woeid has been received
         //1 -> Delete existing data and refresh
         when(type){
             0 -> {
-                viewModel.fetchTrendsList(woeid)
+                viewModel.fetchRegionalTrends(woeid, 20)
+                viewModel.fetchGlobalTrends(20)
             }
 
             1 -> {
@@ -118,12 +123,17 @@ class MainActivity : BaseActivity(), LocationListener {
         locationHelper.getLastLocation()
     }
 
+    fun navigateToSettings(){
+        startActivity(
+            Intent(this, SelectThemeActivity::class.java)
+        )
+    }
+
     private fun initializeViewModel(){
         val component = DaggerVFMTrendsComponent.builder().vMFTrendsModule(VMFTrendsModule(this)).build()
         val factory = component.getViewModelFactory()
         viewModel = ViewModelProvider(this, factory).get(TrendsViewModel::class.java)
 //        viewModel.fetchTrendsList(23424848)
-        viewModel.getTrendsList()
     }
 
     private fun setUpObservers(){
@@ -133,20 +143,20 @@ class MainActivity : BaseActivity(), LocationListener {
             }
         })
 
-        viewModel.trendsList().observe(this, {
-            if(it.isEmpty()){
-                Log.d("OBSERVER", "MainActivity: EMPTY ")
-                if(woeid != 0){
-                    viewModel.fetchTrendsList(woeid)
-                }
-            } else {
-                Log.d("OBSERVER", "MainActivity: $it ")
-                if(isRefreshedClicked){
-                    isRefreshedClicked = false
-                    notifySuccess()
-                }
-            }
-        })
+//        viewModel.trendsList().observe(this, {
+//            if(it.isEmpty()){
+//                Log.d("OBSERVER", "MainActivity: EMPTY ")
+//                if(woeid != 0){
+//                    viewModel.fetchTrendsList(woeid)
+//                }
+//            } else {
+//                Log.d("OBSERVER", "MainActivity: $it ")
+//                if(isRefreshedClicked){
+//                    isRefreshedClicked = false
+//                    notifySuccess()
+//                }
+//            }
+//        })
 
         if(!kv.decodeBool("location", false)){
             viewModel.getPlace().observe(this, {
@@ -162,7 +172,7 @@ class MainActivity : BaseActivity(), LocationListener {
         }
     }
 
-    private fun notifySuccess(){
+    fun notifySuccess(){
         Snacky.builder().setActivity(this)
             .setBackgroundColor(ContextCompat.getColor(this, R.color.colorBlue))
             .setText("Trends Refreshed!")
@@ -292,6 +302,31 @@ class MainActivity : BaseActivity(), LocationListener {
             isNullable = true,
             type = "success"
         )
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        return  when(item.itemId) {
+            R.id.menu_trends -> {
+                supportFragmentManager.beginTransaction().hide(activeFragment)
+                    .show(trendsFragment).commit()
+                activeFragment = trendsFragment
+                true
+            }
+
+            R.id.menu_stats -> {
+                supportFragmentManager.beginTransaction().hide(activeFragment)
+                    .show(statsFragment).commit()
+                activeFragment = statsFragment
+                true
+            }
+
+            else -> {
+                supportFragmentManager.beginTransaction().hide(activeFragment)
+                    .show(trendsFragment).commit()
+                activeFragment = trendsFragment
+                true
+            }
+        }
     }
 
 }

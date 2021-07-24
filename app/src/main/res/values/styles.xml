@@ -23,7 +23,7 @@
         <item name="colorPrimary">@android:color/white</item>
         <item name="colorAccent">@color/colorPurpule</item>
         <item name="secondaryText">#6c7a86</item>
-        <item name="secondaryBackground">#f5f5f5</item>
+        <item name="secondaryBackground">#F0F0F0</item>
         <item name="tertiaryBackground">#D3D3D3</item>
         <item name="android:statusBarColor">@color/white</item>
         <item name="android:windowLightStatusBar">true</item>
@@ -38,7 +38,7 @@
         <item name="primaryBackground">@color/darkPrimaryBg</item>
         <item name="colorPrimary">@android:color/black</item>
         <item name="secondaryText">#C0C0C0</item>
-        <item name="tertiaryBackground">#313131</item>
+        <item name="tertiaryBackground">#808080</item>
         <item name="colorAccent">@color/colorPink</item>
         <item name="android:actionMenuTextColor">@color/darkPrimaryText</item>
         <item name="secondaryBackground">#303030</item>
