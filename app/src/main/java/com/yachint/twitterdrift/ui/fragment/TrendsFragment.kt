@@ -14,7 +14,10 @@ import com.yachint.twitterdrift.ui.adapter.viewpager.HomeViewPagerAdapter
 import com.yachint.twitterdrift.ui.fragment.trends.GlobalTrendsFragment
 import com.yachint.twitterdrift.ui.fragment.trends.RegionalTrendsFragment
 import com.yachint.twitterdrift.ui.injector.DaggerVFMTrendsComponent
+import com.yachint.twitterdrift.ui.injector.DaggerWebSocketComponent
 import com.yachint.twitterdrift.ui.modules.VMFTrendsModule
+import com.yachint.twitterdrift.ui.modules.WebSocketModule
+import com.yachint.twitterdrift.ui.viewmodel.DriftSocketViewModel
 import com.yachint.twitterdrift.ui.viewmodel.TrendsViewModel
 import com.yachint.twitterdrift.utils.PagerMotionHelper
 import hari.bounceview.BounceView
@@ -24,6 +27,7 @@ class TrendsFragment : Fragment() {
 
     lateinit var binding: FragmentTrendsBinding
     private lateinit var viewModel: TrendsViewModel
+    private lateinit var driftSocketViewModel: DriftSocketViewModel
     private var globalTrendsFragment = GlobalTrendsFragment()
     private var regionalTrendsFragment = RegionalTrendsFragment()
     private var isRefreshClicked = false
@@ -50,9 +54,10 @@ class TrendsFragment : Fragment() {
             binding.viewPagerTrends
         )
 
+        binding.viewPagerTrends.offscreenPageLimit = 2
         binding.viewPagerTrends.adapter = HomeViewPagerAdapter(
             lifecycle = lifecycle,
-            fm = requireActivity().supportFragmentManager,
+            fm = childFragmentManager,
             globalTrendsFragment = globalTrendsFragment,
             regionalTrendsFragment = regionalTrendsFragment
         )
@@ -72,11 +77,7 @@ class TrendsFragment : Fragment() {
         // Bind buttons to functionalities
         BounceView.addAnimTo(binding.btnRefresh)
         binding.btnRefresh.setOnClickListener {
-            (activity as MainActivity).apply {
-                refreshData(1)
-            }
-            isRefreshClicked = true
-            binding.horizontalProgressBar.visibility = View.VISIBLE
+            updateTrends()
         }
 
         binding.btnSettings.setOnClickListener {
@@ -84,6 +85,19 @@ class TrendsFragment : Fragment() {
                 navigateToSettings()
             }
         }
+
+        binding.updateCard.setOnClickListener {
+            updateTrends()
+        }
+    }
+    
+    private fun updateTrends(){
+        (activity as MainActivity).apply {
+            refreshData(1)
+        }
+        binding.updateCard.visibility = View.GONE
+        isRefreshClicked = true
+        binding.horizontalProgressBar.visibility = View.VISIBLE
     }
 
     private fun initializeViewModel(){
@@ -92,6 +106,11 @@ class TrendsFragment : Fragment() {
 
         val factory = component.getViewModelFactory()
         viewModel = ViewModelProvider(requireActivity(), factory).get(TrendsViewModel::class.java)
+
+        val socketComponent = DaggerWebSocketComponent.builder()
+            .webSocketModule(WebSocketModule(requireActivity())).build()
+        val socketFactory = socketComponent.getViewModelFactory()
+        driftSocketViewModel = ViewModelProvider(requireActivity(), socketFactory).get(DriftSocketViewModel::class.java)
     }
 
     private fun setUpObservers(){
@@ -100,6 +119,13 @@ class TrendsFragment : Fragment() {
                 isRefreshClicked = false
                 binding.horizontalProgressBar.visibility = View.GONE
                 (activity as MainActivity).notifySuccess()
+                driftSocketViewModel.askForHash((activity as MainActivity).woeid)
+            }
+        })
+
+        driftSocketViewModel.isUpdateRequired().observe(requireActivity(), { isUpdateRequired ->
+            if(isUpdateRequired){
+                binding.updateCard.visibility = View.VISIBLE
             }
         })
     }
