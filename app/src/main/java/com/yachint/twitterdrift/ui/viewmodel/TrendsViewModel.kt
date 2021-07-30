@@ -10,7 +10,9 @@ import com.yachint.twitterdrift.data.model.BaseModel
 import com.yachint.twitterdrift.data.model.response.trends.TrendsMainResponse
 import com.yachint.twitterdrift.data.model.response.woeid.PlaceModel
 import com.yachint.twitterdrift.data.model.trends.Trend
+import com.yachint.twitterdrift.data.model.trends.TrendStatus
 import com.yachint.twitterdrift.data.retrofit.repository.RetroTrendsRepository
+import com.yachint.twitterdrift.utils.TrendStateMaintainer
 
 class TrendsViewModel(
     private val retroTrendsRepository: RetroTrendsRepository
@@ -21,8 +23,10 @@ class TrendsViewModel(
     private var place: MutableLiveData<PlaceModel> = MutableLiveData()
     private var requestsPending = MutableLiveData(0)
     private var error: MutableLiveData<Boolean> = MutableLiveData(false)
+    private var woeid: Int = 0
+    private var stateMaintainer = TrendStateMaintainer.getInstance()
 
-//    fun trendsList(): LiveData<List<Trend>> = listOfTrends
+    //    fun trendsList(): LiveData<List<Trend>> = listOfTrends
     fun globalTrendsList(): LiveData<List<Trend>> = globalTrends
     fun regionalTrendsList(): LiveData<List<Trend>> = regionalTrends
     fun getPlace(): LiveData<PlaceModel> = place
@@ -42,6 +46,26 @@ class TrendsViewModel(
 //        listOfTrends = retroTrendsRepository.roomGetTrends()
 //    }
 
+    private fun setTrendState(type: Int, state: Int){
+        stateMaintainer.setState(type, state)
+    }
+
+    fun getState(type: Int): Int {
+        return stateMaintainer.getState(type).value!!
+    }
+
+    fun maintainInitialStatus(woeid: Int){
+        if(woeid != 1){
+            retroTrendsRepository.roomInsertStatus(TrendStatus(woeid, "null"))
+        } else {
+            retroTrendsRepository.roomInsertStatus(TrendStatus(1, "null"))
+        }
+    }
+
+    fun setWoeid(woeid: Int){
+        this.woeid = woeid
+    }
+
     fun getGlobalTrends(){
         globalTrends = retroTrendsRepository.roomGetGlobalTrends()
     }
@@ -59,11 +83,13 @@ class TrendsViewModel(
     }
 
     fun fetchRegionalTrends(woeid: Int, limit: Int){
+        setTrendState(TrendStateMaintainer.REGIONAL, TrendStateMaintainer.SYNCING)
         retroTrendsRepository.fetchRegionalTrends(woeid, limit, this)
         recordRequest()
     }
 
     fun fetchGlobalTrends(limit: Int){
+        setTrendState(TrendStateMaintainer.GLOBAL, TrendStateMaintainer.SYNCING)
         retroTrendsRepository.fetchGlobalTrends(limit,this)
         recordRequest()
     }
@@ -78,6 +104,13 @@ class TrendsViewModel(
         when(dataModel){
             is TrendsMainResponse -> {
                 Log.d("OBSERVER", "API Fetch Complete for ${dataModel.data[0].type}, Putting in DB...")
+                if(dataModel.data[0].type == "regional"){
+                    retroTrendsRepository.roomUpdateStatus(TrendStatus(this.woeid, dataModel.hash))
+                    setTrendState(TrendStateMaintainer.REGIONAL, TrendStateMaintainer.STABLE)
+                } else {
+                    retroTrendsRepository.roomUpdateStatus(TrendStatus(1, dataModel.hash))
+                    setTrendState(TrendStateMaintainer.GLOBAL, TrendStateMaintainer.STABLE)
+                }
                 insertTrends(dataModel.data)
             }
 

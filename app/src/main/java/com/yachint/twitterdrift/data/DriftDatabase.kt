@@ -7,8 +7,9 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.yachint.twitterdrift.data.dao.TrendsDao
 import com.yachint.twitterdrift.data.model.trends.Trend
+import com.yachint.twitterdrift.data.model.trends.TrendStatus
 
-@Database(entities = [Trend::class], version = 1)
+@Database(entities = [Trend::class, TrendStatus::class], version = 1)
 abstract class DriftDatabase: RoomDatabase() {
 
     abstract fun trendsDao(): TrendsDao

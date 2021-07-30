@@ -17,6 +17,7 @@ import com.yachint.twitterdrift.ui.adapter.TrendAdapter
 import com.yachint.twitterdrift.ui.injector.DaggerVFMTrendsComponent
 import com.yachint.twitterdrift.ui.modules.VMFTrendsModule
 import com.yachint.twitterdrift.ui.viewmodel.TrendsViewModel
+import com.yachint.twitterdrift.utils.TrendStateMaintainer
 
 
 class GlobalTrendsFragment : Fragment() {
@@ -69,7 +70,8 @@ class GlobalTrendsFragment : Fragment() {
         viewModel.globalTrendsList().observe(requireActivity(), {
             if(it.isEmpty()){
                 Log.d("OBSERVER", "GlobalFragment: EMPTY ")
-                if(woeid != 0){
+                val currentTrendState = viewModel.getState(TrendStateMaintainer.GLOBAL)
+                if(woeid != 0 && currentTrendState != TrendStateMaintainer.SYNCING){
                     viewModel.fetchGlobalTrends(20)
                 }
             } else {

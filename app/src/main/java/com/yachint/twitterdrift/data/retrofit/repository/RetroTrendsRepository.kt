@@ -7,6 +7,7 @@ import com.yachint.twitterdrift.data.dao.TrendsDao
 import com.yachint.twitterdrift.data.model.response.trends.TrendsMainResponse
 import com.yachint.twitterdrift.data.model.response.woeid.PlaceMainResponse
 import com.yachint.twitterdrift.data.model.trends.Trend
+import com.yachint.twitterdrift.data.model.trends.TrendStatus
 import com.yachint.twitterdrift.data.repository.TrendsRepository
 import com.yachint.twitterdrift.data.retrofit.TwitterApi
 import kotlinx.coroutines.*
@@ -20,6 +21,7 @@ class RetroTrendsRepository private constructor(
     private lateinit var trendsList: LiveData<List<Trend>>
     private lateinit var globalTrendList: LiveData<List<Trend>>
     private lateinit var regionalTrendList: LiveData<List<Trend>>
+    private lateinit var hash: String
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
 
     companion object {
@@ -160,5 +162,32 @@ class RetroTrendsRepository private constructor(
         }
 
         return regionalTrendList
+    }
+
+    override fun roomInsertStatus(status: TrendStatus) {
+        repositoryScope.launch {
+            trendsDao.insertStatus(status)
+        }
+    }
+
+    override fun roomUpdateStatus(status: TrendStatus) {
+        runBlocking {
+            val job = repositoryScope.launch {
+                trendsDao.updateStatus(status)
+            }
+
+            job.join()
+        }
+    }
+
+    override fun roomGetHash(woeid: Int): String {
+        runBlocking {
+            val job = repositoryScope.launch {
+                hash = trendsDao.getHash(woeid)
+            }
+
+            job.join()
+        }
+        return hash
     }
 }

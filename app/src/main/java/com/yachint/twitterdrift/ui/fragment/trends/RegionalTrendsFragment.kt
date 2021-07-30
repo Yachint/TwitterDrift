@@ -17,6 +17,7 @@ import com.yachint.twitterdrift.ui.adapter.TrendAdapter
 import com.yachint.twitterdrift.ui.injector.DaggerVFMTrendsComponent
 import com.yachint.twitterdrift.ui.modules.VMFTrendsModule
 import com.yachint.twitterdrift.ui.viewmodel.TrendsViewModel
+import com.yachint.twitterdrift.utils.TrendStateMaintainer
 
 class RegionalTrendsFragment : Fragment() {
 
@@ -68,7 +69,8 @@ class RegionalTrendsFragment : Fragment() {
         viewModel.regionalTrendsList().observe(requireActivity(), {
             if(it.isEmpty()){
                 Log.d("OBSERVER", "RegionalFragment: EMPTY ")
-                if(woeid != 0){
+                val currentTrendState = viewModel.getState(TrendStateMaintainer.REGIONAL)
+                if(woeid != 0 && currentTrendState != TrendStateMaintainer.SYNCING){
                     viewModel.fetchRegionalTrends(woeid, 20)
                 }
             } else {
@@ -80,5 +82,4 @@ class RegionalTrendsFragment : Fragment() {
             }
         })
     }
-
 }

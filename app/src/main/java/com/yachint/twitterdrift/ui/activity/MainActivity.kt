@@ -24,8 +24,11 @@ import com.yachint.twitterdrift.ui.fragment.StatsFragment
 import com.yachint.twitterdrift.ui.fragment.TrendsFragment
 import com.yachint.twitterdrift.ui.injector.DaggerLocationHelperComponent
 import com.yachint.twitterdrift.ui.injector.DaggerVFMTrendsComponent
+import com.yachint.twitterdrift.ui.injector.DaggerWebSocketComponent
 import com.yachint.twitterdrift.ui.modules.LocationHelperModule
 import com.yachint.twitterdrift.ui.modules.VMFTrendsModule
+import com.yachint.twitterdrift.ui.modules.WebSocketModule
+import com.yachint.twitterdrift.ui.viewmodel.DriftSocketViewModel
 import com.yachint.twitterdrift.ui.viewmodel.TrendsViewModel
 import com.yachint.twitterdrift.utils.LocationHelper
 import de.mateware.snacky.Snacky
@@ -35,13 +38,14 @@ class MainActivity : BaseActivity(), LocationListener,
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: TrendsViewModel
+    private lateinit var driftSocketViewModel: DriftSocketViewModel
     private lateinit var locationHelper: LocationHelper
     private lateinit var customDialog: CustomDialog
     private val LOCATION = 45
     private var isNavigatedToSettings = false
-    private var woeid: Int = 0
+    var woeid: Int = 0
     private var isUpdateReceived = false
-    lateinit var activeFragment: Fragment
+    private lateinit var activeFragment: Fragment
     private var trendsFragment = TrendsFragment()
     private var statsFragment = StatsFragment()
 
@@ -81,6 +85,9 @@ class MainActivity : BaseActivity(), LocationListener,
 
         // supportActionBar?.hide()
         initializeViewModel()
+        if(woeid != 0){
+            viewModel.setWoeid(woeid)
+        }
         setUpObservers()
     }
 
@@ -89,6 +96,13 @@ class MainActivity : BaseActivity(), LocationListener,
         //1 -> Delete existing data and refresh
         when(type){
             0 -> {
+                //Add initial null hashes for both lists
+                viewModel.setWoeid(woeid)
+                viewModel.maintainInitialStatus(woeid)
+                viewModel.maintainInitialStatus(1)
+
+                //Call manually only once, data change will be
+                //observed by respective fragments
                 viewModel.fetchRegionalTrends(woeid, 20)
                 viewModel.fetchGlobalTrends(20)
             }
@@ -108,6 +122,10 @@ class MainActivity : BaseActivity(), LocationListener,
             Handler(Looper.getMainLooper()).postDelayed({
                 locationHelper.getLastLocation()
             }, 1000)
+        }
+
+        if(woeid != 0 && driftSocketViewModel.isConnected().value == true){
+            driftSocketViewModel.askForHash(woeid)
         }
     }
 
@@ -134,12 +152,24 @@ class MainActivity : BaseActivity(), LocationListener,
         val factory = component.getViewModelFactory()
         viewModel = ViewModelProvider(this, factory).get(TrendsViewModel::class.java)
 //        viewModel.fetchTrendsList(23424848)
+
+        val socketComponent = DaggerWebSocketComponent.builder().webSocketModule(WebSocketModule(this)).build()
+        val socketFactory = socketComponent.getViewModelFactory()
+        driftSocketViewModel = ViewModelProvider(this, socketFactory).get(DriftSocketViewModel::class.java)
     }
 
     private fun setUpObservers(){
         viewModel.getErrorIdentifier().observe(this, { error ->
             if(error){
                 notifyError()
+            }
+        })
+
+        driftSocketViewModel.isConnected().observe(this, { isConnected ->
+            if(isConnected){
+                if(woeid != 0){
+                    driftSocketViewModel.askForHash(woeid)
+                }
             }
         })
 
@@ -211,6 +241,7 @@ class MainActivity : BaseActivity(), LocationListener,
 
         if(requestCode == LOCATION){
             if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                customDialog.showLoadingDialog()
                 locationHelper.getLastLocation()
             } else {
                 customDialog.showDialogDouble(
