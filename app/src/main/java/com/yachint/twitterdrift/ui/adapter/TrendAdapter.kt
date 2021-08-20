@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.yachint.twitterdrift.data.model.trends.Trend
 import com.yachint.twitterdrift.databinding.TrendsFeedItemLayoutBinding
+import com.yachint.twitterdrift.databinding.TrendsFeedModernLayoutBinding
 import com.yachint.twitterdrift.ui.viewholder.TrendViewHolder
 
 class TrendAdapter(
@@ -28,7 +29,7 @@ class TrendAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrendViewHolder {
-        val binding = TrendsFeedItemLayoutBinding.inflate(
+        val binding = TrendsFeedModernLayoutBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
 

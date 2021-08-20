@@ -96,4 +96,5 @@ dependencies {
 
     //UI
     implementation 'me.zhanghai.android.materialprogressbar:library:1.6.1'
+    implementation 'com.mikhaellopez:circularimageview:4.3.0'
 }

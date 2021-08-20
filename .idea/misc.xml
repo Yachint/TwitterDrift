@@ -5,6 +5,7 @@
       <map>
         <entry key="app/src/main/res/drawable/colored_bg.xml" value="0.18385416666666668" />
         <entry key="app/src/main/res/drawable/dark_bg.xml" value="0.16979166666666667" />
+        <entry key="app/src/main/res/drawable/gradient_shape.xml" value="0.2328125" />
         <entry key="app/src/main/res/drawable/ic_baseline_error.xml" value="0.30462962962962964" />
         <entry key="app/src/main/res/drawable/ic_baseline_pie_filled.xml" value="0.30666666666666664" />
         <entry key="app/src/main/res/drawable/ic_chart.xml" value="0.30666666666666664" />
@@ -40,6 +41,7 @@
         <entry key="app/src/main/res/layout/material_you_dialog_single.xml" value="0.335" />
         <entry key="app/src/main/res/layout/single_option_dialog.xml" value="0.3098958333333333" />
         <entry key="app/src/main/res/layout/trends_feed_item_layout.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/trends_feed_modern_layout.xml" value="0.25" />
         <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.2953125" />
       </map>
     </option>
