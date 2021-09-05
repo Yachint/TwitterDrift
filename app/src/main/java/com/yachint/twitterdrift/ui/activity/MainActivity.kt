@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.yachint.twitterdrift.R
 import com.yachint.twitterdrift.data.common.LocationListener
+import com.yachint.twitterdrift.data.model.tweet.Tweet
 import com.yachint.twitterdrift.databinding.ActivityMainBinding
 import com.yachint.twitterdrift.ui.activity.common.BaseActivity
 import com.yachint.twitterdrift.ui.dialog.CustomDialog
@@ -24,12 +25,15 @@ import com.yachint.twitterdrift.ui.fragment.StatsFragment
 import com.yachint.twitterdrift.ui.fragment.TrendsFragment
 import com.yachint.twitterdrift.ui.injector.DaggerLocationHelperComponent
 import com.yachint.twitterdrift.ui.injector.DaggerVFMTrendsComponent
+import com.yachint.twitterdrift.ui.injector.DaggerVMFTweetsComponent
 import com.yachint.twitterdrift.ui.injector.DaggerWebSocketComponent
 import com.yachint.twitterdrift.ui.modules.LocationHelperModule
 import com.yachint.twitterdrift.ui.modules.VMFTrendsModule
+import com.yachint.twitterdrift.ui.modules.VMFTweetsModule
 import com.yachint.twitterdrift.ui.modules.WebSocketModule
 import com.yachint.twitterdrift.ui.viewmodel.DriftSocketViewModel
 import com.yachint.twitterdrift.ui.viewmodel.TrendsViewModel
+import com.yachint.twitterdrift.ui.viewmodel.TweetsViewModel
 import com.yachint.twitterdrift.utils.LocationHelper
 import de.mateware.snacky.Snacky
 
@@ -40,6 +44,7 @@ class MainActivity : BaseActivity(), LocationListener,
     private lateinit var viewModel: TrendsViewModel
     private lateinit var driftSocketViewModel: DriftSocketViewModel
     private lateinit var locationHelper: LocationHelper
+    private lateinit var tweetsViewModel: TweetsViewModel
     private lateinit var customDialog: CustomDialog
     private val LOCATION = 45
     private var isNavigatedToSettings = false
@@ -153,9 +158,24 @@ class MainActivity : BaseActivity(), LocationListener,
         viewModel = ViewModelProvider(this, factory).get(TrendsViewModel::class.java)
 //        viewModel.fetchTrendsList(23424848)
 
+        val tweetsComponent = DaggerVMFTweetsComponent.builder()
+            .vMFTweetsModule(VMFTweetsModule()).build()
+        val tweetsFactory = tweetsComponent.getViewModelFactory()
+        tweetsViewModel = ViewModelProvider(this, tweetsFactory).get(TweetsViewModel::class.java)
+
         val socketComponent = DaggerWebSocketComponent.builder().webSocketModule(WebSocketModule(this)).build()
         val socketFactory = socketComponent.getViewModelFactory()
         driftSocketViewModel = ViewModelProvider(this, socketFactory).get(DriftSocketViewModel::class.java)
+    }
+
+    fun searchForTweet(pos: Int, term: String, fragmentType: Int){
+        trendsFragment.provideSearchDetails(pos, term, fragmentType)
+        tweetsViewModel.fetchTweets(term)
+    }
+
+    fun getTopTweet(): Tweet {
+        tweetsViewModel.resetStatus()
+        return tweetsViewModel.topTweet().value!!
     }
 
     private fun setUpObservers(){
@@ -172,6 +192,7 @@ class MainActivity : BaseActivity(), LocationListener,
                 }
             }
         })
+
 
 //        viewModel.trendsList().observe(this, {
 //            if(it.isEmpty()){

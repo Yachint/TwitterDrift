@@ -90,6 +90,16 @@ class TrendsFragment : Fragment() {
             updateTrends()
         }
     }
+
+    fun provideSearchDetails(pos: Int, term: String, fragmentType: Int){
+        if(fragmentType == 0){
+            globalTrendsFragment.currSearchIdx = pos
+            globalTrendsFragment.currSearchTerm = term
+        } else {
+            regionalTrendsFragment.currSearchIdx = pos
+            regionalTrendsFragment.currSearchTerm = term
+        }
+    }
     
     private fun updateTrends(){
         (activity as MainActivity).apply {
