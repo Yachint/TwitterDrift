@@ -6,12 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.yachint.twitterdrift.data.model.trends.Trend
-import com.yachint.twitterdrift.databinding.TrendsFeedItemLayoutBinding
 import com.yachint.twitterdrift.databinding.TrendsFeedModernLayoutBinding
 import com.yachint.twitterdrift.ui.viewholder.TrendViewHolder
 
 class TrendAdapter(
-    val context: Context
+    val context: Context,
+    val fragmentType: Int
 ): ListAdapter<Trend, TrendViewHolder>(DIFF_CALLBACK) {
 
     companion object {
@@ -23,6 +23,8 @@ class TrendAdapter(
             override fun areContentsTheSame(oldItem: Trend, newItem: Trend): Boolean {
                 return oldItem.name == newItem.name && oldItem.ETA == newItem.ETA
                         && oldItem.state == newItem.state && oldItem.since == newItem.since
+                        && oldItem.isOpen == newItem.isOpen
+                        && oldItem.isTopTweetFetched == newItem.isTopTweetFetched
             }
 
         }
@@ -33,7 +35,7 @@ class TrendAdapter(
             LayoutInflater.from(parent.context), parent, false
         )
 
-        return TrendViewHolder(binding, context)
+        return TrendViewHolder(binding, context, fragmentType)
     }
 
     override fun onBindViewHolder(holder: TrendViewHolder, position: Int) {

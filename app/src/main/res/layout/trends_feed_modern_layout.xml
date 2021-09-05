@@ -10,6 +10,7 @@
     </data>
 
     <com.andexert.library.RippleView
+        android:id="@+id/cardRipple"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -22,6 +23,12 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <LinearLayout
                 android:padding="5dp"
                 android:weightSum="7"
                 android:orientation="horizontal"
@@ -163,6 +170,322 @@
                     android:layout_gravity="center"
                     android:layout_width="5dp"
                     android:layout_height="40dp"/>
+
+            </LinearLayout>
+
+                <View
+                    android:id="@+id/tweetSeparator"
+                    android:visibility="gone"
+                    android:layout_marginTop="10dp"
+                    android:background="?attr/primaryText"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginEnd="30dp"
+                    android:layout_width="match_parent"
+                    android:layout_marginBottom="10dp"
+                    android:layout_height="1dp"/>
+
+                <LinearLayout
+                    android:id="@+id/tweetShimmer"
+                    android:visibility="gone"
+                    android:padding="10dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                       <com.facebook.shimmer.ShimmerFrameLayout
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content">
+
+                           <androidx.cardview.widget.CardView
+                               app:cardCornerRadius="30dp"
+                               android:layout_width="40dp"
+                               android:layout_height="40dp"/>
+
+                       </com.facebook.shimmer.ShimmerFrameLayout>
+
+                        <com.facebook.shimmer.ShimmerFrameLayout
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp">
+
+                            <androidx.cardview.widget.CardView
+                                app:cardCornerRadius="10dp"
+                                android:layout_width="100dp"
+                                android:layout_height="15dp"/>
+
+                            <androidx.cardview.widget.CardView
+                                app:cardCornerRadius="10dp"
+                                android:layout_marginTop="20dp"
+                                android:layout_width="100dp"
+                                android:layout_height="15dp"/>
+
+                        </com.facebook.shimmer.ShimmerFrameLayout>
+
+                    </LinearLayout>
+
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.cardview.widget.CardView
+                            app:cardCornerRadius="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"/>
+
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.cardview.widget.CardView
+                            app:cardCornerRadius="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"/>
+
+
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:weightSum="3"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp">
+
+                            <LinearLayout
+                                android:gravity="center"
+                                android:layout_gravity="center"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content">
+
+                               <androidx.cardview.widget.CardView
+                                   app:cardCornerRadius="10dp"
+                                   android:layout_marginStart="10dp"
+                                   android:layout_marginEnd="10dp"
+                                   android:layout_width="match_parent"
+                                   android:layout_height="40dp"/>
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:gravity="center"
+                                android:layout_gravity="center"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content">
+
+                                <androidx.cardview.widget.CardView
+                                    app:cardCornerRadius="10dp"
+                                    android:layout_marginStart="10dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="40dp"/>
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:gravity="center"
+                                android:layout_gravity="center"
+                                android:layout_weight="1"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content">
+
+                                <androidx.cardview.widget.CardView
+                                    app:cardCornerRadius="10dp"
+                                    android:layout_marginStart="10dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="40dp"/>
+
+                            </LinearLayout>
+
+
+                        </LinearLayout>
+
+                    </com.facebook.shimmer.ShimmerFrameLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tweetLayout"
+                    android:visibility="gone"
+                    android:padding="10dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/profilePicture"
+                            tools:src="@drawable/profile"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"/>
+
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp">
+
+                            <TextView
+                                android:id="@+id/fullName"
+                                tools:text="FC Barcelona"
+                                android:textSize="20sp"
+                                android:textColor="?attr/primaryText"
+                                android:fontFamily="@font/nexa_bold"
+                                android:layout_width="wrap_content"
+                                android:layout_height="20dp"/>
+
+                            <TextView
+                                android:id="@+id/username"
+                                android:textSize="15sp"
+                                tools:text = "FCBarcelona"
+                                android:textColor="?attr/secondaryText"
+                                android:fontFamily="@font/nexa_light"
+                                android:textStyle="bold"
+                                android:layout_width="wrap_content"
+                                android:layout_height="20dp"/>
+
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/verifiedLogo"
+                            android:visibility="visible"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginStart="5dp"
+                            android:src="@drawable/ic_verified"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tweetBody"
+                        android:fontFamily="@font/sf_normal"
+                        android:textColor="?attr/primaryText"
+                        android:layout_marginTop="10dp"
+                        tools:text="@string/customText"
+                        android:textSize="18sp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <androidx.cardview.widget.CardView
+                        app:cardCornerRadius="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/tweetImage"
+                            android:visibility="visible"
+                            android:adjustViewBounds="true"
+                            android:scaleType="centerCrop"
+                            tools:src="@drawable/image"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"/>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <LinearLayout
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:weightSum="3"
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp">
+
+                        <LinearLayout
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:src="@drawable/ic_like"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"/>
+
+                            <TextView
+                                android:id="@+id/numOfLikes"
+                                tools:text="13.5K"
+                                android:layout_marginStart="10dp"
+                                android:textSize="16sp"
+                                android:textColor="?attr/secondaryText"
+                                android:fontFamily="@font/nexa_bold"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:src="@drawable/ic_retweet"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"/>
+
+                            <TextView
+                                android:id="@+id/numOfRetweets"
+                                tools:text="6.4K"
+                                android:layout_marginStart="10dp"
+                                android:textSize="16sp"
+                                android:textColor="?attr/secondaryText"
+                                android:fontFamily="@font/nexa_bold"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:gravity="center"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:id="@+id/share"
+                                android:src="@drawable/ic_share_outline"
+                                android:layout_width="25dp"
+                                android:layout_height="25dp"/>
+
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
 
             </LinearLayout>
 

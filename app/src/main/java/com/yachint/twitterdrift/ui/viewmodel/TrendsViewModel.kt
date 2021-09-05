@@ -49,7 +49,7 @@ class TrendsViewModel(
     private fun setTrendState(type: Int, state: Int){
         stateMaintainer.setState(type, state)
     }
-
+ 
     fun getState(type: Int): Int {
         return stateMaintainer.getState(type).value!!
     }

@@ -16,7 +16,7 @@ class VMFTrendsModule(
     fun provideTrendsDao(): TrendsDao = DriftDatabase.getInstance(context).trendsDao()
 
     @Provides
-    fun provideSearchRepository(trendsDao: TrendsDao):
+    fun provideTrendsRepository(trendsDao: TrendsDao):
             RetroTrendsRepository = RetroTrendsRepository.getInstance(trendsDao)
 
     @Provides
